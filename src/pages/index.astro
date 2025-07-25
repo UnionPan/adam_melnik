@@ -1,0 +1,40 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+	</head>
+	<body>
+		<Header />
+		<main>
+			<h1>💡 Hello, I'm Adam Melnik</h1>
+			<p>
+				Welcome to my creative portfolio! I'm a passionate lighting designer and photographer who brings stories to life through the artful manipulation of light and shadow.
+			</p>
+			<p>
+				I specialize in theatrical lighting design, architectural illumination, and capturing the world's beauty through my lens. My work spans live performances, installations, and photographic projects that explore the interplay between light, space, and emotion.
+			</p>
+			<h2>What I Create</h2>
+			<ul>
+				<li>🎭 Theatrical and concert lighting design</li>
+				<li>🏢 Architectural lighting installations</li>
+				<li>📸 Fine art and commercial photography</li>
+				<li>🎨 Light sculpture and interactive installations</li>
+				<li>🌅 Landscape and portrait photography</li>
+			</ul>
+			<p>
+				Explore my <a href="/gallery">photo gallery</a> to see my latest work, read my <a href="/blog">thoughts</a> on lighting and photography techniques, or learn more about my journey on my <a href="/about">about page</a>.
+			</p>
+			<p>
+				Let's collaborate! You can find me on <a href="https://www.linkedin.com/in/adam-melnik-20" target="_blank">LinkedIn</a> or reach out to discuss your next creative project.
+			</p>
+		</main>
+		<Footer />
+	</body>
+</html>
