@@ -3,53 +3,6 @@ import BaseHead from '../components/BaseHead.astro';
 import Footer from '../components/Footer.astro';
 import Header from '../components/Header.astro';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
-
-// Import gallery images
-import photo1 from '../assets/blog-placeholder-1.jpg';
-import photo2 from '../assets/blog-placeholder-2.jpg';
-import photo3 from '../assets/blog-placeholder-3.jpg';
-import photo4 from '../assets/blog-placeholder-4.jpg';
-import photo5 from '../assets/blog-placeholder-5.jpg';
-import photoAbout from '../assets/blog-placeholder-about.jpg';
-
-const galleryImages = [
-	{
-		src: photo1,
-		alt: 'Architectural lighting installation showcasing modern building facade',
-		title: 'Urban Illumination',
-		category: 'Architecture'
-	},
-	{
-		src: photo2,
-		alt: 'Theatrical lighting design for dramatic stage performance',
-		title: 'Stage Drama',
-		category: 'Theater'
-	},
-	{
-		src: photo3,
-		alt: 'Portrait photography with creative lighting techniques',
-		title: 'Portrait Study',
-		category: 'Portrait'
-	},
-	{
-		src: photo4,
-		alt: 'Landscape photography capturing golden hour lighting',
-		title: 'Golden Hour',
-		category: 'Landscape'
-	},
-	{
-		src: photo5,
-		alt: 'Concert lighting design with dynamic color schemes',
-		title: 'Live Performance',
-		category: 'Concert'
-	},
-	{
-		src: photoAbout,
-		alt: 'Fine art photography exploring light and shadow',
-		title: 'Light & Shadow',
-		category: 'Fine Art'
-	}
-];
 ---
 
 <!doctype html>
@@ -65,16 +18,12 @@ const galleryImages = [
 				A collection of my lighting design work and photography, showcasing the interplay between light, space, and emotion across various mediums and venues.
 			</p>
 			
-			<div class="gallery-grid">
-				{galleryImages.map((image) => (
-					<div class="gallery-item">
-						<img src={image.src.src} alt={image.alt} loading="lazy" />
-						<div class="gallery-overlay">
-							<h3>{image.title}</h3>
-							<p>{image.category}</p>
-						</div>
-					</div>
-				))}
+			<div class="gallery-placeholder">
+				<h2>🎨 Gallery Coming Soon</h2>
+				<p>
+					I'm currently curating a selection of my best lighting design and photography work. 
+					Check back soon to see my portfolio in action!
+				</p>
 			</div>
 			
 			<div class="gallery-info">
@@ -105,57 +54,17 @@ const galleryImages = [
 		line-height: 1.6;
 	}
 	
-	.gallery-grid {
-		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-		gap: 1.5rem;
+	.gallery-placeholder {
+		text-align: center;
+		padding: 4rem 2rem;
+		background: rgba(var(--gray-light), 0.05);
+		border-radius: 8px;
 		margin: 2rem 0;
 	}
 	
-	.gallery-item {
-		position: relative;
-		border-radius: 8px;
-		overflow: hidden;
-		transition: transform 0.3s ease;
-		cursor: pointer;
-	}
-	
-	.gallery-item:hover {
-		transform: translateY(-5px);
-	}
-	
-	.gallery-item img {
-		width: 100%;
-		height: 250px;
-		object-fit: cover;
-		display: block;
-	}
-	
-	.gallery-overlay {
-		position: absolute;
-		bottom: 0;
-		left: 0;
-		right: 0;
-		background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
-		color: white;
-		padding: 1rem;
-		transform: translateY(100%);
-		transition: transform 0.3s ease;
-	}
-	
-	.gallery-item:hover .gallery-overlay {
-		transform: translateY(0);
-	}
-	
-	.gallery-overlay h3 {
-		margin: 0 0 0.5rem 0;
-		font-size: 1.2rem;
-	}
-	
-	.gallery-overlay p {
-		margin: 0;
-		font-size: 0.9rem;
-		opacity: 0.8;
+	.gallery-placeholder h2 {
+		margin-top: 0;
+		font-size: 2rem;
 	}
 	
 	.gallery-info {

@@ -1,14 +1,17 @@
 ---
-import AboutHeroImage from '../assets/blog-placeholder-about.jpg';
-import Layout from '../layouts/BlogPost.astro';
+import BaseHead from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
 ---
 
-<Layout
-	title="About Adam Melnik"
-	description="Learn more about Adam Melnik's journey as a lighting designer and passionate photographer"
-	pubDate={new Date('2024-01-01')}
-	heroImage={AboutHeroImage}
->
+<!doctype html>
+<html lang="en">
+	<head>
+		<BaseHead title="About Adam Melnik" description="Learn more about Adam Melnik's journey as a lighting designer and passionate photographer" />
+	</head>
+	<body>
+		<Header />
+		<main>
 	<h2>Creative Journey</h2>
 	<p>
 		I'm Adam Melnik, a lighting designer and passionate photographer who has spent years exploring the transformative power of light. My journey began with a fascination for how light can shape mood, tell stories, and create unforgettable experiences in both live performance and still imagery.
@@ -47,4 +50,7 @@ import Layout from '../layouts/BlogPost.astro';
 	<p>
 		When I'm not behind a lighting console or camera, you'll find me exploring new locations for photography, attending art exhibitions, or experimenting with new lighting techniques in my studio.
 	</p>
-</Layout>
+		</main>
+		<Footer />
+	</body>
+</html>
