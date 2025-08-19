@@ -1,6 +1,14 @@
 ---
 import BaseHead from '../components/BaseHead.astro';
 import { SITE_TITLE } from '../consts';
+import { readdir } from 'fs/promises';
+
+const photoFolders = await readdir('public/photos', { withFileTypes: true })
+	.then(entries => entries
+		.filter(entry => entry.isDirectory())
+		.map(entry => entry.name)
+		.sort()
+	);
 ---
 
 <!doctype html>
@@ -17,8 +25,9 @@ import { SITE_TITLE } from '../consts';
 					<nav class="main-nav">
 						<h3>Photos</h3>
 						<ul>
-							<li><a href="/?category=newyork">Street</a></li>
-							<li><a href="/?category=climb">Events</a></li>
+							{photoFolders.map((folder) => (
+								<li><a href={`/?category=${folder}`}>{folder.replace(/_/g, ' ')}</a></li>
+							))}
 						</ul>
 						
 						<h3>About</h3>

@@ -1,8 +1,15 @@
 ---
 import BaseHead from '../components/BaseHead.astro';
 import { SITE_TITLE } from '../consts';
-import { readFile } from 'fs/promises';
+import { readFile, readdir } from 'fs/promises';
 import { resolve } from 'path';
+
+const photoFolders = await readdir('public/photos', { withFileTypes: true })
+	.then(entries => entries
+		.filter(entry => entry.isDirectory())
+		.map(entry => entry.name)
+		.sort()
+	);
 
 // Read the markdown file
 const contactContent = await readFile(resolve(process.cwd(), 'src/content/contact.md'), 'utf-8');
@@ -54,8 +61,9 @@ const htmlContent = markdownToHtml(contactContent);
 					<nav class="main-nav">
 						<h3>Photos</h3>
 						<ul>
-							<li><a href="/?category=newyork">Street</a></li>
-							<li><a href="/?category=climb">Events</a></li>
+							{photoFolders.map((folder) => (
+								<li><a href={`/?category=${folder}`}>{folder.replace(/_/g, ' ')}</a></li>
+							))}
 						</ul>
 						
 						<h3>About</h3>

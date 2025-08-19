@@ -1,6 +1,31 @@
 ---
 import BaseHead from '../components/BaseHead.astro';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+import { readdir } from 'fs/promises';
+import path from 'path';
+
+const photoFolders = await readdir('public/photos', { withFileTypes: true })
+	.then(entries => entries
+		.filter(entry => entry.isDirectory())
+		.map(entry => entry.name)
+		.sort()
+	);
+
+// Load all photos for each folder
+const photoCollections = {};
+for (const folder of photoFolders) {
+	try {
+		const photos = await readdir(path.join('public/photos', folder));
+		photoCollections[folder] = photos
+			.filter(file => /\.(jpg|jpeg|png|gif|webp)$/i.test(file))
+			.map(file => ({
+				src: `/photos/${folder}/${file}`,
+				alt: `${folder.replace(/_/g, ' ')} Photo`
+			}));
+	} catch (error) {
+		photoCollections[folder] = [];
+	}
+}
 ---
 
 <!doctype html>
@@ -17,8 +42,9 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 					<nav class="main-nav">
 						<h3>Photos</h3>
 						<ul>
-							<li><a href="#" data-category="newyork" class="category-link active">Street</a></li>
-							<li><a href="#" data-category="climb" class="category-link">Events</a></li>
+							{photoFolders.map((folder, index) => (
+								<li><a href="#" data-category={folder} class={`category-link ${index === 0 ? 'active' : ''}`}>{folder.replace(/_/g, ' ')}</a></li>
+							))}
 						</ul>
 						
 						<h3>About</h3>
@@ -53,26 +79,10 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 			</main>
 		</div>
 
-		<script>
+		<script define:vars={{ photoCollections }}>
 			document.addEventListener('DOMContentLoaded', function() {
 				const categoryLinks = document.querySelectorAll('.category-link');
 				const photoContainer = document.getElementById('photoContainer');
-				
-				// Photo collections - each category has unique photos
-				const photoCollections = {
-					newyork: [
-						{ src: '/photos/newyork/000097580001.jpg', alt: 'New York Photo 1' },
-						{ src: '/photos/newyork/000097580002.jpg', alt: 'New York Photo 2' },
-						{ src: '/photos/newyork/000097580003.jpg', alt: 'New York Photo 3' },
-						{ src: '/photos/newyork/000097580004.jpg', alt: 'New York Photo 4' }
-					],
-					climb: [
-						{ src: '/photos/climb/000097580005.jpg', alt: 'Climb Photo 1' },
-						{ src: '/photos/climb/000097580006.jpg', alt: 'Climb Photo 2' },
-						{ src: '/photos/climb/000097580007.jpg', alt: 'Climb Photo 3' },
-						{ src: '/photos/climb/000097580008.jpg', alt: 'Climb Photo 4' }
-					]
-				};
 				
 				function createPhotoElement(photo, delay = 0) {
 					const photoItem = document.createElement('div');
@@ -97,11 +107,18 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 				}
 				
 				function loadPhotos(categoryName) {
+					console.log('Loading photos for category:', categoryName);
+					console.log('Available collections:', Object.keys(photoCollections));
+					console.log('Photos for category:', photoCollections[categoryName]);
+					
 					// Clear existing photos
 					photoContainer.innerHTML = '';
 					
 					const photos = photoCollections[categoryName];
-					if (!photos) return;
+					if (!photos || photos.length === 0) {
+						console.log('No photos found for category:', categoryName);
+						return;
+					}
 					
 					// Add all photos from the category
 					photos.forEach((photo, index) => {
@@ -123,8 +140,11 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 					loadPhotos(selectedCategory);
 				}
 				
-				// Initialize with New York category (first in navigation)
-				selectCategory('newyork');
+				// Initialize with first category in navigation
+				if (categoryLinks.length > 0) {
+					const firstCategory = categoryLinks[0].dataset.category;
+					selectCategory(firstCategory);
+				}
 				
 				// Add click listeners to category links
 				categoryLinks.forEach(link => {
