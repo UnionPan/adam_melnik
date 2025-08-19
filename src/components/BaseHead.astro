@@ -24,7 +24,21 @@ const { title, description, image } = Astro.props;
 <meta name="generator" content={Astro.generator} />
 
 <!-- Fonts -->
+<link rel="preconnect" href="https://use.typekit.net">
 <link rel="stylesheet" href="https://use.typekit.net/uwm7deo.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;500;600;700&family=Kaushan+Script&family=Pacifico&display=swap" rel="stylesheet">
+<script>
+  (function(d) {
+    var config = {
+      kitId: 'uwm7deo',
+      scriptTimeout: 3000,
+      async: true
+    },
+    h=d.documentElement,t=setTimeout(function(){h.className=h.className.replace(/\bwf-loading\b/g,"")+" wf-inactive"},config.scriptTimeout),tk=d.createElement("script"),f=false,s=d.getElementsByTagName("script")[0],a;h.className+=" wf-loading";tk.src='https://use.typekit.net/'+config.kitId+'.js';tk.async=true;tk.onload=tk.onreadystatechange=function(){a=this.readyState;if(f||a&&a!="complete"&&a!="loaded")return;f=true;clearTimeout(t);try{Typekit.load(config)}catch(e){}};s.parentNode.insertBefore(tk,s)
+  })(document);
+</script>
 
 
 <!-- Canonical URL -->

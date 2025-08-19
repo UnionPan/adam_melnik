@@ -5,7 +5,7 @@ import { readFile } from 'fs/promises';
 import { resolve } from 'path';
 
 // Read the markdown file
-const aboutContent = await readFile(resolve(process.cwd(), 'src/content/about.md'), 'utf-8');
+const contactContent = await readFile(resolve(process.cwd(), 'src/content/contact.md'), 'utf-8');
 
 // Simple markdown to HTML conversion for basic formatting
 function markdownToHtml(md: string): string {
@@ -21,30 +21,31 @@ function markdownToHtml(md: string): string {
     .replace(/\{mono\}(.+?)\{\/mono\}/g, '<span style="font-family: \'droid-sans-mono\', \'Roboto Mono\', monospace;">$1</span>')
     .replace(/\{serif\}(.+?)\{\/serif\}/g, '<span style="font-family: \'Times New Roman\', Times, serif;">$1</span>')
     .replace(/\{sans\}(.+?)\{\/sans\}/g, '<span style="font-family: Arial, Helvetica, sans-serif;">$1</span>')
+    // Handle figure shortcode with width and caption
+    .replace(/\{< figure src="([^"]+)" width="([^"]+)" caption="([^"]*)" >\}/g, '<figure style="text-align: center; margin: 2rem 0;"><img src="/adam.jpg" alt="Adam Melnik" style="width: $2; max-width: 100%; border-radius: 8px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); display: block; margin: 0 auto;" /><figcaption style="margin-top: 0.5rem; font-style: italic; color: #666;">$3</figcaption></figure>')
+    .replace(/\{< figure src="([^"]+)" width="([^"]+)" >\}/g, '<figure style="text-align: center; margin: 2rem 0;"><img src="/adam.jpg" alt="Adam Melnik" style="width: $2; max-width: 100%; border-radius: 8px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); display: block; margin: 0 auto;" /></figure>')
     // Handle images first (before links)
-    .replace(/!\[(.+?)\]\(dist\/(.+?)\)/g, '<img src="/$2" alt="$1" style="max-width: 500px; border-radius: 8px; margin: 1rem auto; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); display: block;" />')
     .replace(/!\[(.+?)\]\((.+?)\)/g, '<img src="$2" alt="$1" style="max-width: 500px; border-radius: 8px; margin: 1rem auto; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); display: block;" />')
-    // Handle image links that should display as images 
-    .replace(/\[([^\]]*)\]\((dist\/[^)]+)\)/g, '<img src="/$2" alt="$1" style="max-width: 500px; border-radius: 8px; margin: 1rem auto; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); display: block;" />')
-    .replace(/\[([^\]]*)\]\(([^)]+\.(jpg|png|gif|webp))\)/g, '<img src="$2" alt="$1" style="max-width: 500px; border-radius: 8px; margin: 1rem auto; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); display: block;" />')
+    // Handle image links that should display as images with larger size
+    .replace(/\[([^\]]*)\]\((\/adam\.jpg|dist\/adam\.jpg|.*\.jpg|.*\.png|.*\.gif|.*\.webp)\)/g, '<img src="/adam.jpg" alt="Adam Melnik" style="max-width: 500px; border-radius: 8px; margin: 1rem auto; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); display: block;" />')
     // Handle regular links
     .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" target="_blank">$1</a>')
     .replace(/\n\n/g, '</p><p>')
-    .replace(/^(?!<[h|u|l|i])/gm, '<p>')
-    .replace(/(?<![h|l|g]>)$/gm, '</p>')
+    .replace(/^(?!<[h|u|l|i|f])/gm, '<p>')
+    .replace(/(?<![h|l|g|e]>)$/gm, '</p>')
     .replace(/<p><\/p>/g, '')
     .replace(/<p>---<\/p>/g, '<hr>');
 }
 
-const htmlContent = markdownToHtml(aboutContent);
+const htmlContent = markdownToHtml(contactContent);
 ---
 
 <!doctype html>
 <html lang="en">
 	<head>
-		<BaseHead title="About Adam Melnik" description="Learn more about Adam Melnik's journey as a lighting designer and passionate photographer" />
+		<BaseHead title="Contact Adam Melnik" description="Get in touch with Adam Melnik for lighting design and photography projects" />
 	</head>
-	<body>
+	<body class="contact-page">
 		<div class="homepage-container">
 			<aside class="sidebar">
 				<div class="sidebar-content">
@@ -59,8 +60,8 @@ const htmlContent = markdownToHtml(aboutContent);
 						
 						<h3>About</h3>
 						<ul>
-							<li><a href="/about" class="active">About Me</a></li>
-							<li><a href="/contact">Contact</a></li>
+							<li><a href="/about">About Me</a></li>
+							<li><a href="/contact" class="active">Contact</a></li>
 						</ul>
 					</nav>
 					
