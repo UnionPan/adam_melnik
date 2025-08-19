@@ -3,6 +3,10 @@ My work as a lighting designer and photographer is a meditation on the language 
 
 The resulting compositions, whether cast across theater stages or captured in silver gelatin, intentionally blur the boundaries between the designed and the discovered, between the controlled and the spontaneous. My lighting designs provide me with a venue for bridging the ancient dialogue between performer and audience, between architecture and inhabitant, dissolving the separation between the illuminated and the illuminator. I am always seeking to understand my own relationship to light by witnessing how it touches my subjects—whether actors on stage or figures in my photographs—and likewise, discovering how their presence shapes my perception of illumination itself.
 
+[//]: # (This content here is for developers explaining the code and not display anything.)
+
+
+[//]: # (The idea of next round development is to link every photo collection to a page where you explain each maginified photo in more detailed plain text)
 
   {font:Georgia}This paragraph uses Georgia font.{/font}
 
