@@ -23,8 +23,15 @@
 	font-style: normal;
 	font-display: swap;
 }
+@font-face {
+	font-family: "Inter Display";
+	src: url("/fonts/InterDisplay-Light.woff2") format("woff2");
+	font-weight: 300;
+	font-style: normal;
+	font-display: swap;
+}
 body {
-	font-family: "droid-sans-mono", "Roboto Mono", monospace;
+	font-family: "Inter Display", "droid-sans-mono", "Roboto Mono", sans-serif;
 	margin: 0;
 	padding: 0;
 	text-align: left;
@@ -33,19 +40,20 @@ body {
 	overflow-wrap: break-word;
 	color: rgb(var(--gray-dark));
 	font-size: 20px;
+	font-weight: 300;
 	line-height: 1.7;
 	height: 100vh;
 	overflow: hidden;
 }
 
-/* Adobe Fonts loading states */
+/* Font loading states */
 .wf-loading body {
 	font-family: "Roboto Mono", monospace;
 }
 
 .wf-active body,
 .wf-inactive body {
-	font-family: "droid-sans-mono", "Roboto Mono", monospace;
+	font-family: "Inter Display", "droid-sans-mono", "Roboto Mono", sans-serif;
 }
 
 .homepage-container {
@@ -70,11 +78,11 @@ body {
 .site-title {
 	color: rgb(var(--black));
 	text-decoration: none;
-	font-size: 2.5rem;
-	font-weight: 600;
+	font-size: 2rem;
+	font-weight: 300;
 	display: block;
 	margin-bottom: 2rem;
-	font-family: "Kaushan Script", cursive;
+	font-family: "Inter Display", sans-serif;
 	line-height: 1.2;
 	letter-spacing: 1px;
 	text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -83,9 +91,7 @@ body {
 }
 
 .site-title:hover {
-	color: var(--accent);
-	transform: rotate(0deg) scale(1.05);
-	text-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+	color: rgb(var(--black));
 }
 
 .main-nav h3 {
@@ -99,7 +105,7 @@ body {
 .main-nav ul {
 	list-style: none;
 	padding: 0;
-	margin: 0 0 1rem 0;
+	margin: 0 0 0.5rem 0;
 }
 
 .main-nav li {
@@ -112,18 +118,18 @@ body {
 	color: rgb(var(--gray-dark));
 	text-decoration: none;
 	font-size: 0.9rem;
+	font-weight: 300;
 	border-left: 3px solid transparent;
 	padding-left: 1rem;
 	margin-left: -1rem;
 	transition: all 0.2s ease;
-	font-family: "Times New Roman", Times, serif;
+	font-family: "Inter Display", sans-serif;
 }
 
 .main-nav a:hover,
 .main-nav a.active {
-	color: red;
-	border-left-color: red;
-	background: rgba(var(--gray-light), 0.3);
+	color: rgb(var(--gray));
+	border-left-color: rgb(var(--gray));
 }
 
 .social-links {
@@ -232,14 +238,6 @@ body {
 	transition: transform 0.3s ease;
 }
 
-.photo-item:hover {
-	transform: translateY(-5px);
-	box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
-}
-
-.photo-item:hover img {
-	transform: scale(1.02);
-}
 
 @keyframes fadeInUp {
 	to {
@@ -271,7 +269,8 @@ main {
 .content-section {
 	max-width: 800px;
 	animation: fadeInUp 0.6s ease forwards;
-	font-family: "Times New Roman", Times, serif;
+	font-family: "Inter Display", sans-serif;
+	font-weight: 300;
 	font-size: 19px;
 }
 
@@ -313,8 +312,8 @@ h6 {
 	margin: 0 0 0.5rem 0;
 	color: rgb(var(--black));
 	line-height: 1.2;
-	font-family: "droid-sans-mono", "Roboto Mono", monospace;
-	font-weight: 400;
+	font-family: "Inter Display", "droid-sans-mono", "Roboto Mono", sans-serif;
+	font-weight: 300;
 }
 
 .wf-loading h1,
@@ -338,12 +337,12 @@ h6 {
 .wf-inactive h4,
 .wf-inactive h5,
 .wf-inactive h6 {
-	font-family: "droid-sans-mono", "Roboto Mono", monospace;
+	font-family: "Inter Display", "droid-sans-mono", "Roboto Mono", sans-serif;
 }
 
 h1 {
 	font-size: 3.052em;
-	font-weight: 400;
+	font-weight: 300;
 	letter-spacing: -0.02em;
 }
 h2 {
@@ -436,8 +435,9 @@ hr {
 	
 	.site-title {
 		font-size: 2rem;
+		font-weight: 300;
 		margin-bottom: 1rem;
-		font-family: "Kaushan Script", cursive;
+		font-family: "Inter Display", sans-serif;
 		transform: rotate(-1deg);
 	}
 	
@@ -448,11 +448,12 @@ hr {
 	
 	.main-nav a {
 		font-size: 0.9rem;
+		font-weight: 300;
 		padding: 0.75rem 0;
 		min-height: 44px;
 		display: flex;
 		align-items: center;
-		font-family: "Times New Roman", Times, serif;
+		font-family: "Inter Display", sans-serif;
 	}
 	
 	.social-links {
