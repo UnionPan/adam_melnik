@@ -27,6 +27,64 @@ for (const folder of photoFolders) {
 				src: `/photos/${folder}/${file}`,
 				alt: `${folder.replace(/_/g, ' ')} Photo`
 			}));
+
+		// Add subcategories for Street
+		if (folder === 'Street') {
+			try {
+				// Check if NYC subfolder exists
+				const nycPhotos = await readdir(path.join('public/photos', folder, 'NYC'));
+				photoCollections['Street/NYC'] = nycPhotos
+					.filter(file => /\.(jpg|jpeg|png|gif|webp)$/i.test(file))
+					.map(file => ({
+						src: `/photos/${folder}/NYC/${file}`,
+						alt: 'NYC Street Photo'
+					}));
+			} catch (error) {
+				photoCollections['Street/NYC'] = [];
+			}
+
+			try {
+				// Check if Rajasthan subfolder exists
+				const rajasthanPhotos = await readdir(path.join('public/photos', folder, 'Rajasthan'));
+				photoCollections['Street/Rajasthan'] = rajasthanPhotos
+					.filter(file => /\.(jpg|jpeg|png|gif|webp)$/i.test(file))
+					.map(file => ({
+						src: `/photos/${folder}/Rajasthan/${file}`,
+						alt: 'Rajasthan Street Photo'
+					}));
+			} catch (error) {
+				photoCollections['Street/Rajasthan'] = [];
+			}
+		}
+
+		// Add subcategories for Events
+		if (folder === 'Events') {
+			try {
+				// Check if Lisa's 60th subfolder exists
+				const lisaPhotos = await readdir(path.join('public/photos', folder, "Lisa's 60th"));
+				photoCollections["Events/Lisa's 60th"] = lisaPhotos
+					.filter(file => /\.(jpg|jpeg|png|gif|webp)$/i.test(file))
+					.map(file => ({
+						src: `/photos/${folder}/Lisa's 60th/${file}`,
+						alt: "Lisa's 60th Birthday Photo"
+					}));
+			} catch (error) {
+				photoCollections["Events/Lisa's 60th"] = [];
+			}
+
+			try {
+				// Check if Julia + Spencer subfolder exists
+				const juliaSpencerPhotos = await readdir(path.join('public/photos', folder, 'Julia + Spencer'));
+				photoCollections['Events/Julia + Spencer'] = juliaSpencerPhotos
+					.filter(file => /\.(jpg|jpeg|png|gif|webp)$/i.test(file))
+					.map(file => ({
+						src: `/photos/${folder}/Julia + Spencer/${file}`,
+						alt: 'Julia + Spencer Event Photo'
+					}));
+			} catch (error) {
+				photoCollections['Events/Julia + Spencer'] = [];
+			}
+		}
 	} catch (error) {
 		photoCollections[folder] = [];
 	}
@@ -46,9 +104,33 @@ for (const folder of photoFolders) {
 					
 					<nav class="main-nav">
 						<ul>
-							{photoFolders.map((folder, index) => (
-								<li><a href="#" data-category={folder} class={`category-link ${index === 0 ? 'active' : ''}`}>{folder.replace(/_/g, ' ')}</a></li>
-							))}
+							{photoFolders.map((folder, index) => {
+								if (folder === 'Street') {
+									return (
+										<li class="dropdown-item">
+											<a href="#" data-category={folder} class={`category-link dropdown-toggle ${index === 0 ? 'active' : ''}`}>{folder.replace(/_/g, ' ')}</a>
+											<ul class="dropdown-menu">
+												<li><a href="#" data-category="Street/NYC" class="category-link dropdown-link">NYC</a></li>
+												<li><a href="#" data-category="Street/Rajasthan" class="category-link dropdown-link">Rajasthan</a></li>
+											</ul>
+										</li>
+									);
+								} else if (folder === 'Events') {
+									return (
+										<li class="dropdown-item">
+											<a href="#" data-category={folder} class={`category-link dropdown-toggle ${index === 0 ? 'active' : ''}`}>{folder.replace(/_/g, ' ')}</a>
+											<ul class="dropdown-menu">
+												<li><a href="#" data-category="Events/Lisa's 60th" class="category-link dropdown-link">Lisa's 60th</a></li>
+												<li><a href="#" data-category="Events/Julia + Spencer" class="category-link dropdown-link">Julia + Spencer</a></li>
+											</ul>
+										</li>
+									);
+								} else {
+									return (
+										<li><a href="#" data-category={folder} class={`category-link ${index === 0 ? 'active' : ''}`}>{folder.replace(/_/g, ' ')}</a></li>
+									);
+								}
+							})}
 						</ul>
 						
 						<ul>
@@ -83,69 +165,83 @@ for (const folder of photoFolders) {
 			document.addEventListener('DOMContentLoaded', function() {
 				const categoryLinks = document.querySelectorAll('.category-link');
 				const photoContainer = document.getElementById('photoContainer');
-				
+				const dropdownItems = document.querySelectorAll('.dropdown-item');
+
 				function createPhotoElement(photo, delay = 0) {
 					const photoItem = document.createElement('div');
 					photoItem.className = 'photo-item';
 					photoItem.style.animationDelay = `${delay}s`;
 					photoItem.style.opacity = '0';
 					photoItem.style.transform = 'translateY(20px)';
-					
+
 					const img = document.createElement('img');
 					img.src = photo.src;
 					img.alt = photo.alt;
-					
+
 					photoItem.appendChild(img);
-					
+
 					// Trigger fade-in animation
 					setTimeout(() => {
 						photoItem.style.opacity = '1';
 						photoItem.style.transform = 'translateY(0)';
 					}, delay * 100);
-					
+
 					return photoItem;
 				}
-				
+
 				function loadPhotos(categoryName) {
 					console.log('Loading photos for category:', categoryName);
 					console.log('Available collections:', Object.keys(photoCollections));
 					console.log('Photos for category:', photoCollections[categoryName]);
-					
+
 					// Clear existing photos
 					photoContainer.innerHTML = '';
-					
+
 					const photos = photoCollections[categoryName];
 					if (!photos || photos.length === 0) {
 						console.log('No photos found for category:', categoryName);
 						return;
 					}
-					
+
 					// Add all photos from the category
 					photos.forEach((photo, index) => {
 						const photoElement = createPhotoElement(photo, index * 0.1);
 						photoContainer.appendChild(photoElement);
 					});
-					
+
 					// Reset scroll position
 					photoContainer.scrollTop = 0;
 				}
-				
+
 				function selectCategory(selectedCategory) {
 					// Remove active class from all links
 					categoryLinks.forEach(l => l.classList.remove('active'));
+
+					// Remove active class from dropdown items
+					dropdownItems.forEach(item => item.classList.remove('active'));
+
 					// Add active class to clicked link
-					document.querySelector(`[data-category="${selectedCategory}"]`).classList.add('active');
-					
+					const targetLink = document.querySelector(`[data-category="${selectedCategory}"]`);
+					if (targetLink) {
+						targetLink.classList.add('active');
+
+						// If this is a dropdown link, also activate the parent dropdown
+						const parentDropdown = targetLink.closest('.dropdown-item');
+						if (parentDropdown) {
+							parentDropdown.classList.add('active');
+						}
+					}
+
 					// Load photos for the selected category
 					loadPhotos(selectedCategory);
 				}
-				
+
 				// Initialize with first category in navigation
 				if (categoryLinks.length > 0) {
 					const firstCategory = categoryLinks[0].dataset.category;
 					selectCategory(firstCategory);
 				}
-				
+
 				// Add click listeners to category links
 				categoryLinks.forEach(link => {
 					link.addEventListener('click', function(e) {
@@ -153,6 +249,24 @@ for (const folder of photoFolders) {
 						const selectedCategory = this.dataset.category;
 						selectCategory(selectedCategory);
 					});
+				});
+
+				// Handle dropdown toggle behavior
+				dropdownItems.forEach(item => {
+					const toggle = item.querySelector('.dropdown-toggle');
+					if (toggle) {
+						toggle.addEventListener('click', function(e) {
+							e.preventDefault();
+							// Toggle the dropdown
+							item.classList.toggle('active');
+
+							// If clicking the main Street category, load Street photos
+							const selectedCategory = this.dataset.category;
+							if (selectedCategory === 'Street') {
+								selectCategory(selectedCategory);
+							}
+						});
+					}
 				});
 			});
 		</script>
