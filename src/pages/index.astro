@@ -16,29 +16,41 @@ const photoFolders = await readdir('public/photos', { withFileTypes: true })
 		})
 	);
 
+// Fisher-Yates shuffle algorithm
+function shuffleArray(array) {
+	const shuffled = [...array];
+	for (let i = shuffled.length - 1; i > 0; i--) {
+		const j = Math.floor(Math.random() * (i + 1));
+		[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+	}
+	return shuffled;
+}
+
 // Load all photos for each folder
 const photoCollections = {};
 for (const folder of photoFolders) {
 	try {
 		const photos = await readdir(path.join('public/photos', folder));
-		photoCollections[folder] = photos
+		const photoObjects = photos
 			.filter(file => /\.(jpg|jpeg|png|gif|webp)$/i.test(file))
 			.map(file => ({
 				src: `/photos/${folder}/${file}`,
 				alt: `${folder.replace(/_/g, ' ')} Photo`
 			}));
+		photoCollections[folder] = shuffleArray(photoObjects);
 
 		// Add subcategories for Street
 		if (folder === 'Street') {
 			try {
 				// Check if NYC subfolder exists
 				const nycPhotos = await readdir(path.join('public/photos', folder, 'NYC'));
-				photoCollections['Street/NYC'] = nycPhotos
+				const nycPhotoObjects = nycPhotos
 					.filter(file => /\.(jpg|jpeg|png|gif|webp)$/i.test(file))
 					.map(file => ({
 						src: `/photos/${folder}/NYC/${file}`,
 						alt: 'NYC Street Photo'
 					}));
+				photoCollections['Street/NYC'] = shuffleArray(nycPhotoObjects);
 			} catch (error) {
 				photoCollections['Street/NYC'] = [];
 			}
@@ -46,12 +58,13 @@ for (const folder of photoFolders) {
 			try {
 				// Check if Rajasthan subfolder exists
 				const rajasthanPhotos = await readdir(path.join('public/photos', folder, 'Rajasthan'));
-				photoCollections['Street/Rajasthan'] = rajasthanPhotos
+				const rajasthanPhotoObjects = rajasthanPhotos
 					.filter(file => /\.(jpg|jpeg|png|gif|webp)$/i.test(file))
 					.map(file => ({
 						src: `/photos/${folder}/Rajasthan/${file}`,
 						alt: 'Rajasthan Street Photo'
 					}));
+				photoCollections['Street/Rajasthan'] = shuffleArray(rajasthanPhotoObjects);
 			} catch (error) {
 				photoCollections['Street/Rajasthan'] = [];
 			}
@@ -62,12 +75,13 @@ for (const folder of photoFolders) {
 			try {
 				// Check if Lisa's 60th subfolder exists
 				const lisaPhotos = await readdir(path.join('public/photos', folder, "Lisa's 60th"));
-				photoCollections["Events/Lisa's 60th"] = lisaPhotos
+				const lisaPhotoObjects = lisaPhotos
 					.filter(file => /\.(jpg|jpeg|png|gif|webp)$/i.test(file))
 					.map(file => ({
 						src: `/photos/${folder}/Lisa's 60th/${file}`,
 						alt: "Lisa's 60th Birthday Photo"
 					}));
+				photoCollections["Events/Lisa's 60th"] = shuffleArray(lisaPhotoObjects);
 			} catch (error) {
 				photoCollections["Events/Lisa's 60th"] = [];
 			}
@@ -75,12 +89,13 @@ for (const folder of photoFolders) {
 			try {
 				// Check if Julia + Spencer subfolder exists
 				const juliaSpencerPhotos = await readdir(path.join('public/photos', folder, 'Julia + Spencer'));
-				photoCollections['Events/Julia + Spencer'] = juliaSpencerPhotos
+				const juliaSpencerPhotoObjects = juliaSpencerPhotos
 					.filter(file => /\.(jpg|jpeg|png|gif|webp)$/i.test(file))
 					.map(file => ({
 						src: `/photos/${folder}/Julia + Spencer/${file}`,
 						alt: 'Julia + Spencer Event Photo'
 					}));
+				photoCollections['Events/Julia + Spencer'] = shuffleArray(juliaSpencerPhotoObjects);
 			} catch (error) {
 				photoCollections['Events/Julia + Spencer'] = [];
 			}
@@ -154,6 +169,9 @@ for (const folder of photoFolders) {
 			
 			<main class="photo-column">
 				<div class="photo-scroll">
+					<div class="landing-image" id="landingImage">
+						<img src="/landing/000093860009.jpg" alt="Adam Melnik Photography" />
+					</div>
 					<div class="photo-container" id="photoContainer">
 						<!-- Photos will be dynamically loaded here -->
 					</div>
@@ -165,6 +183,7 @@ for (const folder of photoFolders) {
 			document.addEventListener('DOMContentLoaded', function() {
 				const categoryLinks = document.querySelectorAll('.category-link');
 				const photoContainer = document.getElementById('photoContainer');
+				const landingImage = document.getElementById('landingImage');
 				const dropdownItems = document.querySelectorAll('.dropdown-item');
 
 				function createPhotoElement(photo, delay = 0) {
@@ -194,6 +213,10 @@ for (const folder of photoFolders) {
 					console.log('Available collections:', Object.keys(photoCollections));
 					console.log('Photos for category:', photoCollections[categoryName]);
 
+					// Hide landing image and show photo container
+					landingImage.style.display = 'none';
+					photoContainer.style.display = 'block';
+
 					// Clear existing photos
 					photoContainer.innerHTML = '';
 
@@ -211,6 +234,12 @@ for (const folder of photoFolders) {
 
 					// Reset scroll position
 					photoContainer.scrollTop = 0;
+				}
+
+				function showLandingImage() {
+					// Show landing image and hide photo container
+					landingImage.style.display = 'flex';
+					photoContainer.style.display = 'none';
 				}
 
 				function selectCategory(selectedCategory) {
@@ -236,11 +265,8 @@ for (const folder of photoFolders) {
 					loadPhotos(selectedCategory);
 				}
 
-				// Initialize with first category in navigation
-				if (categoryLinks.length > 0) {
-					const firstCategory = categoryLinks[0].dataset.category;
-					selectCategory(firstCategory);
-				}
+				// Initialize with landing image
+				showLandingImage();
 
 				// Add click listeners to category links
 				categoryLinks.forEach(link => {

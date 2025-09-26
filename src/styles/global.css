@@ -242,6 +242,24 @@ body {
 	scrollbar-width: none;
 }
 
+.landing-image {
+	max-width: 800px;
+	width: 100%;
+	margin: 3rem auto;
+	margin-left: 2rem;
+	margin-right: 0;
+	padding-right: 20px;
+	transition: all 0.3s ease;
+}
+
+.landing-image img {
+	width: 100%;
+	height: auto;
+	display: block;
+	margin: 0 auto;
+	transition: transform 0.3s ease;
+}
+
 
 .photo-item {
 	width: 100%;
@@ -529,7 +547,13 @@ hr {
 	.photo-item {
 		margin-bottom: 1rem;
 	}
-	
+
+	.landing-image {
+		margin-left: 0;
+		max-width: none;
+		margin-bottom: 1rem;
+	}
+
 	.content-section {
 		max-width: none;
 	}
