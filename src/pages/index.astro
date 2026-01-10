@@ -26,15 +26,30 @@ function shuffleArray(array) {
 	return shuffled;
 }
 
+// Load landing page photos
+let landingPhotos = [];
+try {
+	const landingEntries = await readdir('public/landing', { withFileTypes: true });
+	landingPhotos = landingEntries
+		.filter(entry => entry.isFile() && /\.(jpg|jpeg|png|gif|webp)$/i.test(entry.name))
+		.map(entry => ({
+			src: `/landing/${entry.name}`,
+			alt: 'Adam Melnik Photography'
+		}));
+	landingPhotos = shuffleArray(landingPhotos);
+} catch (error) {
+	console.error('Error loading landing photos:', error);
+}
+
 // Load all photos for each folder
 const photoCollections = {};
 for (const folder of photoFolders) {
 	try {
-		const photos = await readdir(path.join('public/photos', folder));
-		const photoObjects = photos
-			.filter(file => /\.(jpg|jpeg|png|gif|webp)$/i.test(file))
-			.map(file => ({
-				src: `/photos/${folder}/${file}`,
+		const entries = await readdir(path.join('public/photos', folder), { withFileTypes: true });
+		const photoObjects = entries
+			.filter(entry => entry.isFile() && /\.(jpg|jpeg|png|gif|webp)$/i.test(entry.name))
+			.map(entry => ({
+				src: `/photos/${folder}/${entry.name}`,
 				alt: `${folder === 'rock' ? 'Rock' : folder.replace(/_/g, ' ')} Photo`
 			}));
 		photoCollections[folder] = shuffleArray(photoObjects);
@@ -126,7 +141,7 @@ for (const folder of photoFolders) {
 										<li class="dropdown-item">
 											<a href="#" data-category={folder} class={`category-link dropdown-toggle ${index === 0 ? 'active' : ''}`}>{displayName}</a>
 											<ul class="dropdown-menu">
-												<li><a href="#" data-category="Street/NYC" class="category-link dropdown-link">NYC</a></li>
+												<li><a href="#" data-category="Street/NYC" class="category-link dropdown-link">New York City</a></li>
 												<li><a href="#" data-category="Street/Rajasthan" class="category-link dropdown-link">Rajasthan, India</a></li>
 											</ul>
 										</li>
@@ -171,7 +186,9 @@ for (const folder of photoFolders) {
 			<main class="photo-column">
 				<div class="photo-scroll">
 					<div class="landing-image" id="landingImage">
-						<img src="/landing/000093860009.jpg" alt="Adam Melnik Photography" />
+						<div class="masonry-grid">
+							<!-- Landing images will be dynamically loaded here -->
+						</div>
 					</div>
 					<div class="photo-container" id="photoContainer">
 						<!-- Photos will be dynamically loaded here -->
@@ -180,12 +197,29 @@ for (const folder of photoFolders) {
 			</main>
 		</div>
 
-		<script define:vars={{ photoCollections }}>
+		<script define:vars={{ photoCollections, landingPhotos }}>
 			document.addEventListener('DOMContentLoaded', function() {
 				const categoryLinks = document.querySelectorAll('.category-link');
 				const photoContainer = document.getElementById('photoContainer');
 				const landingImage = document.getElementById('landingImage');
 				const dropdownItems = document.querySelectorAll('.dropdown-item');
+
+				function createMasonryItem(photo) {
+					const item = document.createElement('div');
+					item.className = 'masonry-item';
+
+					// Randomly assign size classes for variation
+					const sizeClass = Math.random() > 0.7 ? 'large' : Math.random() > 0.5 ? 'medium' : 'small';
+					item.classList.add(sizeClass);
+
+					const img = document.createElement('img');
+					img.src = photo.src;
+					img.alt = photo.alt;
+					img.loading = 'lazy';
+
+					item.appendChild(img);
+					return item;
+				}
 
 				function createPhotoElement(photo, delay = 0) {
 					const photoItem = document.createElement('div');
@@ -209,6 +243,9 @@ for (const folder of photoFolders) {
 					return photoItem;
 				}
 
+				let currentPhotoIndex = 0;
+				let currentCategory = null;
+
 				function loadPhotos(categoryName) {
 					console.log('Loading photos for category:', categoryName);
 					console.log('Available collections:', Object.keys(photoCollections));
@@ -216,9 +253,7 @@ for (const folder of photoFolders) {
 
 					// Hide landing image and show photo container
 					landingImage.style.display = 'none';
-					photoContainer.style.display = 'block';
-
-					// Clear existing photos
+					photoContainer.style.display = 'flex';
 					photoContainer.innerHTML = '';
 
 					const photos = photoCollections[categoryName];
@@ -227,20 +262,73 @@ for (const folder of photoFolders) {
 						return;
 					}
 
-					// Add all photos from the category
-					photos.forEach((photo, index) => {
-						const photoElement = createPhotoElement(photo, index * 0.1);
-						photoContainer.appendChild(photoElement);
-					});
+					currentCategory = categoryName;
+					currentPhotoIndex = 0;
 
-					// Reset scroll position
-					photoContainer.scrollTop = 0;
+					// Create single photo viewer
+					const photoViewer = document.createElement('div');
+					photoViewer.className = 'photo-viewer';
+
+					const photoWrapper = document.createElement('div');
+					photoWrapper.className = 'photo-wrapper';
+
+					const img = document.createElement('img');
+					img.src = photos[currentPhotoIndex].src;
+					img.alt = photos[currentPhotoIndex].alt;
+					img.className = 'viewer-image';
+
+					// Create navigation overlays
+					const leftNav = document.createElement('div');
+					leftNav.className = 'nav-overlay nav-left';
+					leftNav.addEventListener('click', () => navigatePhoto(-1));
+
+					const rightNav = document.createElement('div');
+					rightNav.className = 'nav-overlay nav-right';
+					rightNav.addEventListener('click', () => navigatePhoto(1));
+
+					photoWrapper.appendChild(img);
+					photoWrapper.appendChild(leftNav);
+					photoWrapper.appendChild(rightNav);
+					photoViewer.appendChild(photoWrapper);
+
+					photoContainer.appendChild(photoViewer);
+				}
+
+				function navigatePhoto(direction) {
+					if (!currentCategory) return;
+
+					const photos = photoCollections[currentCategory];
+					if (!photos || photos.length === 0) return;
+
+					// Update index with wrapping
+					currentPhotoIndex = (currentPhotoIndex + direction + photos.length) % photos.length;
+
+					// Update image
+					const img = photoContainer.querySelector('.viewer-image');
+
+					if (img) {
+						img.style.opacity = '0';
+						setTimeout(() => {
+							img.src = photos[currentPhotoIndex].src;
+							img.alt = photos[currentPhotoIndex].alt;
+							img.style.opacity = '1';
+						}, 150);
+					}
 				}
 
 				function showLandingImage() {
 					// Show landing image and hide photo container
-					landingImage.style.display = 'flex';
+					landingImage.style.display = 'block';
 					photoContainer.style.display = 'none';
+
+					// Populate landing page with masonry grid using landing folder photos
+					const masonryGrid = landingImage.querySelector('.masonry-grid');
+					masonryGrid.innerHTML = '';
+
+					landingPhotos.forEach((photo) => {
+						const item = createMasonryItem(photo);
+						masonryGrid.appendChild(item);
+					});
 				}
 
 				function selectCategory(selectedCategory) {
@@ -268,6 +356,18 @@ for (const folder of photoFolders) {
 
 				// Initialize with landing image
 				showLandingImage();
+
+				// Add click listener to site title to return to landing page
+				const siteTitle = document.querySelector('.site-title');
+				if (siteTitle) {
+					siteTitle.addEventListener('click', function(e) {
+						e.preventDefault();
+						// Remove active class from all links
+						categoryLinks.forEach(l => l.classList.remove('active'));
+						dropdownItems.forEach(item => item.classList.remove('active'));
+						showLandingImage();
+					});
+				}
 
 				// Add click listeners to category links
 				categoryLinks.forEach(link => {
