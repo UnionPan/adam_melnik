@@ -872,13 +872,20 @@ hr {
 	}
 
 	/* Mobile photo viewer adjustments */
+	.photo-viewer {
+		min-height: 100vh;
+		padding-top: 3.5rem;
+		padding-bottom: 4rem;
+		justify-content: center;
+	}
+
 	.photo-wrapper {
 		max-width: 95%;
-		max-height: 80vh;
+		max-height: 75vh;
 	}
 
 	.viewer-image {
-		max-height: 80vh;
+		max-height: 75vh;
 	}
 
 	.photo-counter {
