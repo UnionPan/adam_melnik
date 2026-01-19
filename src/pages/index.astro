@@ -383,12 +383,8 @@ for (const folder of photoFolders) {
 					const img = photoContainer.querySelector('.viewer-image');
 
 					if (img) {
-						img.style.opacity = '0';
-						setTimeout(() => {
-							img.src = photos[currentPhotoIndex].src;
-							img.alt = photos[currentPhotoIndex].alt;
-							img.style.opacity = '1';
-						}, 150);
+						img.src = photos[currentPhotoIndex].src;
+						img.alt = photos[currentPhotoIndex].alt;
 					}
 				}
 
