@@ -1,20 +1,16 @@
 ---
 import BaseHead from '../components/BaseHead.astro';
-import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+import { PHOTO_CATEGORIES, SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 import { readdir } from 'fs/promises';
 import path from 'path';
 
-const photoFolders = await readdir('public/photos', { withFileTypes: true })
+const allFolders = await readdir('public/photos', { withFileTypes: true })
 	.then(entries => entries
 		.filter(entry => entry.isDirectory())
 		.map(entry => entry.name)
-		.sort((a, b) => {
-			// Put Street first, then alphabetical order for others
-			if (a === 'Street') return -1;
-			if (b === 'Street') return 1;
-			return a.localeCompare(b);
-		})
 	);
+
+const photoFolders = PHOTO_CATEGORIES.filter(name => allFolders.includes(name));
 
 // Fisher-Yates shuffle algorithm
 function shuffleArray(array) {
@@ -41,83 +37,37 @@ try {
 	console.error('Error loading landing photos:', error);
 }
 
+// Collect photos anywhere under a folder, so dropping a batch of images in as a
+// subfolder still shows up under its category
+async function readPhotosDeep(dir, alt) {
+	let entries;
+	try {
+		entries = await readdir(dir, { withFileTypes: true });
+	} catch (error) {
+		return [];
+	}
+
+	const photos = [];
+	for (const entry of entries) {
+		const fullPath = path.join(dir, entry.name);
+		if (entry.isDirectory()) {
+			photos.push(...await readPhotosDeep(fullPath, alt));
+		} else if (/\.(jpg|jpeg|png|gif|webp)$/i.test(entry.name)) {
+			photos.push({
+				src: '/' + path.relative('public', fullPath).split(path.sep).join('/'),
+				alt
+			});
+		}
+	}
+	return photos;
+}
+
 // Load all photos for each folder
 const photoCollections = {};
+
 for (const folder of photoFolders) {
-	try {
-		const entries = await readdir(path.join('public/photos', folder), { withFileTypes: true });
-		const photoObjects = entries
-			.filter(entry => entry.isFile() && /\.(jpg|jpeg|png|gif|webp)$/i.test(entry.name))
-			.map(entry => ({
-				src: `/photos/${folder}/${entry.name}`,
-				alt: `${folder === 'rock' ? 'Rock' : folder.replace(/_/g, ' ')} Photo`
-			}));
-		photoCollections[folder] = shuffleArray(photoObjects);
-
-		// Add subcategories for Street
-		if (folder === 'Street') {
-			try {
-				// Check if NYC subfolder exists
-				const nycPhotos = await readdir(path.join('public/photos', folder, 'NYC'));
-				const nycPhotoObjects = nycPhotos
-					.filter(file => /\.(jpg|jpeg|png|gif|webp)$/i.test(file))
-					.map(file => ({
-						src: `/photos/${folder}/NYC/${file}`,
-						alt: 'NYC Street Photo'
-					}));
-				photoCollections['Street/NYC'] = shuffleArray(nycPhotoObjects);
-			} catch (error) {
-				photoCollections['Street/NYC'] = [];
-			}
-
-			try {
-				// Check if Rajasthan subfolder exists
-				const rajasthanPhotos = await readdir(path.join('public/photos', folder, 'Rajasthan'));
-				const rajasthanPhotoObjects = rajasthanPhotos
-					.filter(file => /\.(jpg|jpeg|png|gif|webp)$/i.test(file))
-					.map(file => ({
-						src: `/photos/${folder}/Rajasthan/${file}`,
-						alt: 'Rajasthan Street Photo'
-					}));
-				photoCollections['Street/Rajasthan'] = shuffleArray(rajasthanPhotoObjects);
-			} catch (error) {
-				photoCollections['Street/Rajasthan'] = [];
-			}
-		}
-
-		// Add subcategories for Events
-		if (folder === 'Events') {
-			try {
-				// Check if Lisa's 60th subfolder exists
-				const lisaPhotos = await readdir(path.join('public/photos', folder, "Lisa's 60th"));
-				const lisaPhotoObjects = lisaPhotos
-					.filter(file => /\.(jpg|jpeg|png|gif|webp)$/i.test(file))
-					.map(file => ({
-						src: `/photos/${folder}/Lisa's 60th/${file}`,
-						alt: "Lisa's 60th Birthday Photo"
-					}));
-				photoCollections["Events/Lisa's 60th"] = shuffleArray(lisaPhotoObjects);
-			} catch (error) {
-				photoCollections["Events/Lisa's 60th"] = [];
-			}
-
-			try {
-				// Check if Julia + Spencer subfolder exists
-				const juliaSpencerPhotos = await readdir(path.join('public/photos', folder, 'Julia + Spencer'));
-				const juliaSpencerPhotoObjects = juliaSpencerPhotos
-					.filter(file => /\.(jpg|jpeg|png|gif|webp)$/i.test(file))
-					.map(file => ({
-						src: `/photos/${folder}/Julia + Spencer/${file}`,
-						alt: 'Julia + Spencer Event Photo'
-					}));
-				photoCollections['Events/Julia + Spencer'] = shuffleArray(juliaSpencerPhotoObjects);
-			} catch (error) {
-				photoCollections['Events/Julia + Spencer'] = [];
-			}
-		}
-	} catch (error) {
-		photoCollections[folder] = [];
-	}
+	const photos = await readPhotosDeep(path.join('public/photos', folder), `${folder} Photo`);
+	photoCollections[folder] = shuffleArray(photos);
 }
 ---
 
@@ -166,36 +116,11 @@ for (const folder of photoFolders) {
 					
 					<nav class="main-nav">
 						<ul>
-							{photoFolders.map((folder, index) => {
-								const displayName = folder === 'rock' ? 'Rock' : folder.replace(/_/g, ' ');
-								if (folder === 'Street') {
-									return (
-										<li class="dropdown-item">
-											<a href="#" data-category={folder} class="category-link dropdown-toggle">{displayName}</a>
-											<ul class="dropdown-menu">
-												<li><a href="#" data-category="Street/NYC" class="category-link dropdown-link">New York City</a></li>
-												<li><a href="#" data-category="Street/Rajasthan" class="category-link dropdown-link">Rajasthan, India</a></li>
-											</ul>
-										</li>
-									);
-								} else if (folder === 'Events') {
-									return (
-										<li class="dropdown-item">
-											<a href="#" data-category={folder} class="category-link dropdown-toggle">{displayName}</a>
-											<ul class="dropdown-menu">
-												<li><a href="#" data-category="Events/Lisa's 60th" class="category-link dropdown-link">Lisa's 60th</a></li>
-												<li><a href="#" data-category="Events/Julia + Spencer" class="category-link dropdown-link">Julia + Spencer</a></li>
-											</ul>
-										</li>
-									);
-								} else {
-									return (
-										<li><a href="#" data-category={folder} class={`category-link ${index === 0 ? 'active' : ''}`}>{displayName}</a></li>
-									);
-								}
-							})}
+							{photoFolders.map((folder) => (
+								<li><a href="#" data-category={folder} class="category-link">{folder}</a></li>
+							))}
 						</ul>
-						
+
 						<ul>
 							<li><a href="/about">About Me</a></li>
 							<li><a href="/contact">Contact</a></li>
@@ -227,6 +152,29 @@ for (const folder of photoFolders) {
 					</div>
 				</div>
 			</main>
+		</div>
+
+		<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Photo viewer">
+			<button class="lightbox-close" id="lightboxClose" aria-label="Close photo">
+				<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+					<line x1="6" y1="6" x2="18" y2="18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+					<line x1="18" y1="6" x2="6" y2="18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+				</svg>
+			</button>
+			<button class="lightbox-nav lightbox-prev" id="lightboxPrev" aria-label="Previous photo">
+				<svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+					<polyline points="15 5 8 12 15 19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+				</svg>
+			</button>
+			<div class="lightbox-stage" id="lightboxStage">
+				<img class="lightbox-image" id="lightboxImage" src="" alt="" />
+			</div>
+			<button class="lightbox-nav lightbox-next" id="lightboxNext" aria-label="Next photo">
+				<svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+					<polyline points="9 5 16 12 9 19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+				</svg>
+			</button>
+			<div class="photo-counter" id="lightboxCounter"></div>
 		</div>
 
 		<script is:inline>
@@ -280,9 +228,12 @@ for (const folder of photoFolders) {
 				const landingImage = document.getElementById('landingImage');
 				const dropdownItems = document.querySelectorAll('.dropdown-item');
 
-				function createMasonryItem(photo) {
+				function createMasonryItem(photo, index) {
 					const item = document.createElement('div');
 					item.className = 'masonry-item';
+					item.setAttribute('role', 'button');
+					item.setAttribute('tabindex', '0');
+					item.setAttribute('aria-label', 'View photo full size');
 
 					// Randomly assign size classes for variation
 					const sizeClass = Math.random() > 0.7 ? 'large' : Math.random() > 0.5 ? 'medium' : 'small';
@@ -294,6 +245,15 @@ for (const folder of photoFolders) {
 					img.loading = 'lazy';
 
 					item.appendChild(img);
+
+					item.addEventListener('click', () => openLightbox(index, item));
+					item.addEventListener('keydown', (e) => {
+						if (e.key === 'Enter' || e.key === ' ') {
+							e.preventDefault();
+							openLightbox(index, item);
+						}
+					});
+
 					return item;
 				}
 
@@ -335,6 +295,10 @@ for (const folder of photoFolders) {
 					const photos = photoCollections[categoryName];
 					if (!photos || photos.length === 0) {
 						console.log('No photos found for category:', categoryName);
+						const empty = document.createElement('p');
+						empty.className = 'empty-category';
+						empty.textContent = 'No photos here yet.';
+						photoContainer.appendChild(empty);
 						return;
 					}
 
@@ -397,11 +361,113 @@ for (const folder of photoFolders) {
 					const masonryGrid = landingImage.querySelector('.masonry-grid');
 					masonryGrid.innerHTML = '';
 
-					landingPhotos.forEach((photo) => {
-						const item = createMasonryItem(photo);
+					landingPhotos.forEach((photo, index) => {
+						const item = createMasonryItem(photo, index);
 						masonryGrid.appendChild(item);
 					});
 				}
+
+				// Full-screen landing photo viewer
+				const lightbox = document.getElementById('lightbox');
+				const lightboxImage = document.getElementById('lightboxImage');
+				const lightboxStage = document.getElementById('lightboxStage');
+				const lightboxClose = document.getElementById('lightboxClose');
+				const lightboxPrev = document.getElementById('lightboxPrev');
+				const lightboxNext = document.getElementById('lightboxNext');
+				const lightboxCounter = document.getElementById('lightboxCounter');
+
+				let lightboxIndex = 0;
+				let lightboxTrigger = null;
+
+				function showLightboxPhoto() {
+					const photo = landingPhotos[lightboxIndex];
+					if (!photo) return;
+
+					lightboxImage.classList.remove('is-loaded');
+					lightboxImage.src = photo.src;
+					lightboxImage.alt = photo.alt;
+					lightboxCounter.textContent = `${lightboxIndex + 1} / ${landingPhotos.length}`;
+
+					// Preload neighbours so panning doesn't wait on the network
+					[lightboxIndex - 1, lightboxIndex + 1].forEach(i => {
+						const neighbour = landingPhotos[(i + landingPhotos.length) % landingPhotos.length];
+						if (neighbour) new Image().src = neighbour.src;
+					});
+				}
+
+				lightboxImage.addEventListener('load', () => {
+					lightboxImage.classList.add('is-loaded');
+				});
+
+				function openLightbox(index, trigger) {
+					if (!landingPhotos.length) return;
+
+					lightboxIndex = index;
+					lightboxTrigger = trigger || null;
+					showLightboxPhoto();
+
+					// A single landing photo has nothing to pan to
+					const multiple = landingPhotos.length > 1;
+					lightboxPrev.style.display = multiple ? '' : 'none';
+					lightboxNext.style.display = multiple ? '' : 'none';
+					lightboxCounter.style.display = multiple ? '' : 'none';
+
+					lightbox.classList.add('open');
+					document.body.style.overflow = 'hidden';
+					lightboxClose.focus();
+				}
+
+				function closeLightbox() {
+					lightbox.classList.remove('open');
+					document.body.style.overflow = '';
+					lightboxImage.classList.remove('is-loaded');
+					if (lightboxTrigger) {
+						lightboxTrigger.focus();
+						lightboxTrigger = null;
+					}
+				}
+
+				function navigateLightbox(direction) {
+					if (!landingPhotos.length) return;
+					lightboxIndex = (lightboxIndex + direction + landingPhotos.length) % landingPhotos.length;
+					showLightboxPhoto();
+				}
+
+				lightboxClose.addEventListener('click', closeLightbox);
+				lightboxPrev.addEventListener('click', () => navigateLightbox(-1));
+				lightboxNext.addEventListener('click', () => navigateLightbox(1));
+
+				// Clicking the empty space around the photo exits
+				lightbox.addEventListener('click', (e) => {
+					if (e.target === lightbox || e.target === lightboxStage) {
+						closeLightbox();
+					}
+				});
+
+				document.addEventListener('keydown', (e) => {
+					if (!lightbox.classList.contains('open')) return;
+
+					if (e.key === 'Escape') {
+						closeLightbox();
+					} else if (e.key === 'ArrowLeft') {
+						navigateLightbox(-1);
+					} else if (e.key === 'ArrowRight') {
+						navigateLightbox(1);
+					}
+				});
+
+				// Swipe to pan on touch devices
+				let touchStartX = 0;
+				lightboxStage.addEventListener('touchstart', (e) => {
+					touchStartX = e.changedTouches[0].screenX;
+				}, { passive: true });
+
+				lightboxStage.addEventListener('touchend', (e) => {
+					const deltaX = e.changedTouches[0].screenX - touchStartX;
+					if (Math.abs(deltaX) > 50) {
+						navigateLightbox(deltaX < 0 ? 1 : -1);
+					}
+				}, { passive: true });
 
 				function selectCategory(selectedCategory) {
 					// Remove active class from all links

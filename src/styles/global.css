@@ -297,6 +297,12 @@ body {
 	border-left-color: var(--text-secondary);
 }
 
+.empty-category {
+	color: var(--text-secondary);
+	font-size: 0.9rem;
+	font-weight: 300;
+}
+
 .dropdown-item {
 	position: relative;
 }
@@ -466,6 +472,11 @@ body {
 	transform: scale(1.02);
 }
 
+.masonry-item:focus-visible {
+	outline: 2px solid var(--accent);
+	outline-offset: 3px;
+}
+
 /* Variable sizing for masonry items */
 .masonry-item.small {
 	/* Default size - no special height */
@@ -543,6 +554,101 @@ body {
 	box-shadow: 0 2px 8px var(--shadow-color);
 }
 
+/* Landing Lightbox */
+.lightbox {
+	position: fixed;
+	inset: 0;
+	z-index: 2000;
+	display: none;
+	align-items: center;
+	justify-content: center;
+	padding: 2rem;
+	background: var(--bg-primary);
+}
+
+.lightbox.open {
+	display: flex;
+}
+
+.lightbox-stage {
+	position: relative;
+	max-width: 90%;
+	max-height: 85vh;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.lightbox-image {
+	max-width: 100%;
+	max-height: 85vh;
+	width: auto;
+	height: auto;
+	object-fit: contain;
+	display: block;
+	opacity: 0;
+	transition: opacity 0.3s ease;
+}
+
+.lightbox-image.is-loaded {
+	opacity: 1;
+}
+
+.lightbox-close,
+.lightbox-nav {
+	position: absolute;
+	z-index: 10;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0.75rem;
+	background: none;
+	border: none;
+	color: var(--text-secondary);
+	cursor: pointer;
+	transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.lightbox-close:hover,
+.lightbox-nav:hover {
+	color: var(--text-primary);
+}
+
+.lightbox-close:focus-visible,
+.lightbox-nav:focus-visible {
+	outline: 2px solid var(--accent);
+	outline-offset: 2px;
+}
+
+.lightbox-close {
+	top: 1.5rem;
+	right: 1.5rem;
+}
+
+.lightbox-nav {
+	top: 50%;
+	transform: translateY(-50%);
+}
+
+.lightbox-prev {
+	left: 1.5rem;
+}
+
+.lightbox-next {
+	right: 1.5rem;
+}
+
+.lightbox-prev:hover {
+	transform: translateY(-50%) translateX(-3px);
+}
+
+.lightbox-next:hover {
+	transform: translateY(-50%) translateX(3px);
+}
+
+.lightbox .photo-counter {
+	pointer-events: none;
+}
 
 .photo-item {
 	width: 100%;
@@ -905,6 +1011,33 @@ hr {
 		bottom: 1rem;
 		font-size: 0.85rem;
 		padding: 0.4rem 0.8rem;
+	}
+
+	/* Mobile lightbox adjustments */
+	.lightbox {
+		padding: 1rem;
+	}
+
+	.lightbox-stage {
+		max-width: 100%;
+		max-height: 75vh;
+	}
+
+	.lightbox-image {
+		max-height: 75vh;
+	}
+
+	.lightbox-close {
+		top: 0.75rem;
+		right: 0.75rem;
+	}
+
+	.lightbox-prev {
+		left: 0.25rem;
+	}
+
+	.lightbox-next {
+		right: 0.25rem;
 	}
 
 	.content-section {

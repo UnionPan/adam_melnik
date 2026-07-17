@@ -1,20 +1,14 @@
 ---
 import BaseHead from '../components/BaseHead.astro';
-import { SITE_TITLE } from '../consts';
+import { PHOTO_CATEGORIES, SITE_TITLE } from '../consts';
 import { readFile, readdir } from 'fs/promises';
 import { resolve } from 'path';
 
 const photoFolders = await readdir('public/photos', { withFileTypes: true })
-	.then(entries => entries
-		.filter(entry => entry.isDirectory())
-		.map(entry => entry.name)
-		.sort((a, b) => {
-			// Put Street first, then alphabetical order for others
-			if (a === 'Street') return -1;
-			if (b === 'Street') return 1;
-			return a.localeCompare(b);
-		})
-	);
+	.then(entries => {
+		const folders = entries.filter(entry => entry.isDirectory()).map(entry => entry.name);
+		return PHOTO_CATEGORIES.filter(name => folders.includes(name));
+	});
 
 // Read the markdown file
 const aboutContent = await readFile(resolve(process.cwd(), 'src/content/about.md'), 'utf-8');
