@@ -41,6 +41,17 @@ const { title, description, image } = Astro.props;
 </script>
 
 
+<!-- The build stamps in the year it ran; this keeps it current for visitors
+     between deploys, so it rolls over on January 1 without a rebuild. -->
+<script is:inline>
+	document.addEventListener('DOMContentLoaded', function () {
+		var year = String(new Date().getFullYear());
+		document.querySelectorAll('.copyright-year').forEach(function (el) {
+			el.textContent = year;
+		});
+	});
+</script>
+
 <!-- Canonical URL -->
 <link rel="canonical" href={canonicalURL} />
 
