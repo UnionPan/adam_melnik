@@ -174,7 +174,6 @@ for (const folder of photoFolders) {
 					<polyline points="9 5 16 12 9 19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
 				</svg>
 			</button>
-			<div class="photo-counter" id="lightboxCounter"></div>
 		</div>
 
 		<script is:inline>
@@ -374,7 +373,6 @@ for (const folder of photoFolders) {
 				const lightboxClose = document.getElementById('lightboxClose');
 				const lightboxPrev = document.getElementById('lightboxPrev');
 				const lightboxNext = document.getElementById('lightboxNext');
-				const lightboxCounter = document.getElementById('lightboxCounter');
 
 				let lightboxIndex = 0;
 				let lightboxTrigger = null;
@@ -386,7 +384,6 @@ for (const folder of photoFolders) {
 					lightboxImage.classList.remove('is-loaded');
 					lightboxImage.src = photo.src;
 					lightboxImage.alt = photo.alt;
-					lightboxCounter.textContent = `${lightboxIndex + 1} / ${landingPhotos.length}`;
 
 					// Preload neighbours so panning doesn't wait on the network
 					[lightboxIndex - 1, lightboxIndex + 1].forEach(i => {
@@ -410,7 +407,6 @@ for (const folder of photoFolders) {
 					const multiple = landingPhotos.length > 1;
 					lightboxPrev.style.display = multiple ? '' : 'none';
 					lightboxNext.style.display = multiple ? '' : 'none';
-					lightboxCounter.style.display = multiple ? '' : 'none';
 
 					lightbox.classList.add('open');
 					document.body.style.overflow = 'hidden';
